@@ -1,52 +1,31 @@
 package ClanTerritory.clanTerritory;
 
 
+import org.bukkit.Location;
 
 public class Region {
-    private int centerX;
-    private int centerY;
-    private int centerZ;
-    private int radius;
+    private final int centerX, centerY, centerZ, radius;
 
-    // Конструктор
-    public Region(int centerX, int centerY, int centerZ, int radius) {
-        this.centerX = centerX;
-        this.centerY = centerY;
-        this.centerZ = centerZ;
+    public Region(int x, int y, int z, int radius) {
+        this.centerX = x;
+        this.centerY = y;
+        this.centerZ = z;
         this.radius = radius;
     }
 
-    // Геттеры и сеттеры
-    public int getCenterX() {
-        return centerX;
-    }
-
-    public void setCenterX(int centerX) {
-        this.centerX = centerX;
-    }
-
-    public int getCenterY() {
-        return centerY;
-    }
-
-    public void setCenterY(int centerY) {
-        this.centerY = centerY;
-    }
-
-    public int getCenterZ() {
-        return centerZ;
-    }
-
-    public void setCenterZ(int centerZ) {
-        this.centerZ = centerZ;
-    }
+    public int getCenterX() { return centerX; }
+    public int getCenterY() { return centerY; }
+    public int getCenterZ() { return centerZ; }
 
     public int getRadius() {
         return radius;
     }
 
-    public void setRadius(int radius) {
-        this.radius = radius;
+    public boolean isInside(Location loc) {
+        double dx = centerX - loc.getX();
+        double dy = centerY - loc.getY();
+        double dz = centerZ - loc.getZ();
+        return Math.sqrt(dx * dx + dy * dy + dz * dz) <= radius;
     }
 }
 
