@@ -18,24 +18,7 @@ public final class ClanTerritory extends JavaPlugin {
     private ClanManager clanManager;
     private ClanZoneManager clanZoneManager;
 
-    // Метод подсветки границы территории
-    public static void highlightBorder(Player player, Region region) {
-        World world = player.getWorld();
-        int centerX = region.getCenterX();
-        int centerY = region.getCenterY();
-        int centerZ = region.getCenterZ();
-        int radius = region.getRadius();
 
-        // Подсветка границы зоны по окружности
-        for (int angle = 0; angle < 360; angle += 10) { // Шаг 10 градусов для частиц
-            double radian = Math.toRadians(angle);
-            double x = centerX + radius * Math.cos(radian);
-            double z = centerZ + radius * Math.sin(radian);
-
-            // Частицы на границе зоны
-            world.spawnParticle(Particle.REDSTONE, x, centerY, z, 1, new Particle.DustOptions(Color.RED, 1)); // Можно выбрать другой цвет или тип частиц
-        }
-    }
 
     @Override
     public void onEnable() {
@@ -149,5 +132,24 @@ public final class ClanTerritory extends JavaPlugin {
 
 
         return false;
+    }
+
+    // Метод подсветки границы территории
+    public static void highlightBorder(Player player, Region region) {
+        World world = player.getWorld();
+        int centerX = region.getCenterX();
+        int centerY = region.getCenterY();
+        int centerZ = region.getCenterZ();
+        int radius = region.getRadius();
+
+        // Подсветка границы зоны по окружности
+        for (int angle = 0; angle < 360; angle += 10) { // Шаг 10 градусов для частиц
+            double radian = Math.toRadians(angle);
+            double x = centerX + radius * Math.cos(radian);
+            double z = centerZ + radius * Math.sin(radian);
+
+            // Частицы на границе зоны
+            world.spawnParticle(Particle.REDSTONE, x, centerY, z, 1, new Particle.DustOptions(Color.RED, 1)); // Можно выбрать другой цвет или тип частиц
+        }
     }
 }
