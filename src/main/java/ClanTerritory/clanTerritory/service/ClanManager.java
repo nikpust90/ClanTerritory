@@ -10,15 +10,27 @@ import java.util.UUID;
 public class ClanManager {
 
     // Создание нового клана
-    public void createClan(String clanName) {
+    public boolean createClan(Player player, String clanName) {
         if (DatabaseManager.getClanZone(clanName) != null) {
-            Bukkit.getLogger().info("Clan " + clanName + " already exists!");
-            return;
+            player.sendMessage("§cClan '" + clanName + "' already exists!");
+            return false;
         }
 
-        // Сохраняем новый клан в базе данных
-        DatabaseManager.saveClan(clanName);
-        Bukkit.getLogger().info("Clan " + clanName + " has been created successfully.");
+        // Проверяем, есть ли у игрока уже клан
+        String existingClan = DatabaseManager.getPlayerClan(player.getUniqueId());
+        if (existingClan != null) {
+            player.sendMessage("§cYou are already in a clan: " + existingClan);
+            return false;
+        }
+
+        // Сохраняем клан с владельцем
+        DatabaseManager.saveClan(clanName, player.getUniqueId());
+
+        // Добавляем создателя в участники
+        DatabaseManager.savePlayerClan(player.getUniqueId(), clanName);
+
+        Bukkit.getLogger().info("Clan " + clanName + " has been created by " + player.getName());
+        return true;
     }
 
     // Добавление игрока в клан

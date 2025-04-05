@@ -60,11 +60,12 @@ public class DatabaseManager {
     }
 
     // Сохранение клана в базе данных (без зоны)
-    public static void saveClan(String clanName) {
+    public static void saveClan(String clanName, UUID ownerUuid) {
         try (Connection conn = getConnection()) {
-            String insertQuery = "INSERT INTO clan_zones (clan_name) VALUES (?)";
+            String insertQuery = "INSERT INTO clan_zones (clan_name, owner_uuid) VALUES (?, ?)";
             try (PreparedStatement stmt = conn.prepareStatement(insertQuery)) {
                 stmt.setString(1, clanName);
+                stmt.setObject(2, ownerUuid);
                 stmt.executeUpdate();
             }
         } catch (SQLException e) {

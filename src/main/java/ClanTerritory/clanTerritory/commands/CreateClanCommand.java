@@ -24,7 +24,7 @@ public class CreateClanCommand implements CommandExecutor {
         }
 
         String clanName = args[0];
-        boolean created = clanManager.createClan(player.getUniqueId(), clanName);
+        boolean created = clanManager.createClan(player, clanName);
         if (created) {
             player.sendMessage("§aYour clan '" + clanName + "' has been created!");
         } else {

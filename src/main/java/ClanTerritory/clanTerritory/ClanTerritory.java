@@ -47,10 +47,14 @@ public final class ClanTerritory extends JavaPlugin {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) return false;
+    public void onDisable() {
+        getLogger().info("ClanTerritory Plugin Disabled!");
+    }
 
-        Player player = (Player) sender;
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!(sender instanceof Player player)) return false;
+
         UUID uuid = player.getUniqueId();
 
         switch (command.getName().toLowerCase()) {
@@ -59,13 +63,28 @@ public final class ClanTerritory extends JavaPlugin {
                     player.sendMessage("§cUsage: /createClan <name>");
                     return true;
                 }
+
+                String clanName = args[0];
+
+                // Проверка: уже в клане?
                 if (clanManager.getPlayerClan(uuid) != null) {
                     player.sendMessage("§cYou are already in a clan.");
                     return true;
                 }
-                clanManager.createClan(args[0]);
-                clanManager.addPlayerToClan(uuid, args[0]);
-                player.sendMessage("§aClan " + args[0] + " created and you joined it!");
+
+                // Проверка: имя занято?
+                if (DatabaseManager.getClanZone(clanName) != null) {
+                    player.sendMessage("§cClan with that name already exists.");
+                    return true;
+                }
+
+                // Создаём клан с игроком как владельцем
+                boolean created = clanManager.createClan(player, clanName);
+                if (created) {
+                    player.sendMessage("§aClan '" + clanName + "' created successfully! You are the leader.");
+                } else {
+                    player.sendMessage("§cFailed to create the clan.");
+                }
                 return true;
 
             case "createclanzone":
