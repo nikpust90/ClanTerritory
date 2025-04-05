@@ -1,0 +1,12 @@
+name: ClanTerritory
+version: 1.0
+main: ClanTerritory.clanTerritory.ClanTerritory
+api-version: 1.19
+commands:
+  setclanflag:
+    description: Установить флаг клана
+    usage: /setclanflag
+permissions:
+  clanterritory.use:
+    description: Позволяет использовать команды плагина
+    default: true
