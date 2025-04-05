@@ -2,11 +2,26 @@ name: ClanTerritory
 version: 1.0
 main: ClanTerritory.clanTerritory.ClanTerritory
 api-version: 1.19
+
 commands:
   setclanflag:
     description: Установить флаг клана
     usage: /setclanflag
+
+  createclan:
+    description: Создать клан
+    usage: /createclan <имя>
+
+  createclanzone:
+    description: Создать базу клана
+    usage: /createclanzone <имя клана>
+
+  clan:
+    description: Управление кланом (join, leave, base)
+    usage: /clan <join|leave|base> [название]
+
 permissions:
   clanterritory.use:
     description: Позволяет использовать команды плагина
     default: true
+

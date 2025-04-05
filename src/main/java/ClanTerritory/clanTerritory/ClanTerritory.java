@@ -24,8 +24,19 @@ public final class ClanTerritory extends JavaPlugin {
     public void onEnable() {
         clanManager = new ClanManager();
         clanZoneManager = new ClanZoneManager();
+
+        // Регистрируем команды
+        getCommand("createclan").setExecutor(this);
+        getCommand("createclanzone").setExecutor(this);
+        getCommand("clan").setExecutor(this);
+        getCommand("setclanflag").setExecutor(this);
+
+        // Слушатель защиты территории
         Bukkit.getPluginManager().registerEvents(new ProtectionListener(), this);
+
+        // Создаём таблицы
         DatabaseManager.createTables();
+
         getLogger().info("ClanTerritory Plugin Enabled!");
     }
 
