@@ -23,6 +23,27 @@ public class DatabaseManager {
 
     private static Connection connection;
 
+
+    static {
+        try {
+            // 1. Проверка наличия драйвера
+            Class.forName("org.postgresql.Driver");
+            System.out.println("[ClanTerritory] PostgreSQL драйвер успешно зарегистрирован");
+
+            // 2. Тестовое подключение
+            System.out.println("[ClanTerritory] Тестирование подключения к: " + URL);
+            try (Connection testConn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+                System.out.println("[ClanTerritory] ✅ Тестовое подключение успешно!");
+            }
+        } catch (ClassNotFoundException e) {
+            System.err.println("[ClanTerritory] ❌ PostgreSQL драйвер не найден!");
+            e.printStackTrace();
+        } catch (SQLException e) {
+            System.err.println("[ClanTerritory] ❌ Ошибка тестового подключения: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     // Подключение к БД
     public static Connection getConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {
