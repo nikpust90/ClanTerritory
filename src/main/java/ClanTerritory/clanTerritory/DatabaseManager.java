@@ -61,36 +61,35 @@ public class DatabaseManager {
         System.out.println("[ClanTerritory] Создание таблиц, если они не существуют...");
 
         try (Connection conn = getConnection()) {
+            // 1. Создаем таблицу clan_zones с UNIQUE constraint
             String createClanTableQuery = "CREATE TABLE IF NOT EXISTS clan_zones (" +
                     "id SERIAL PRIMARY KEY," +
-                    "clan_name VARCHAR(255) NOT NULL," +
+                    "clan_name VARCHAR(255) NOT NULL UNIQUE," +  // Добавлено UNIQUE
                     "center_x INT NOT NULL," +
                     "center_y INT NOT NULL," +
                     "center_z INT NOT NULL," +
                     "radius INT NOT NULL" +
                     ");";
 
+            // 2. Создаем таблицу player_clans с корректным внешним ключом
             String createPlayerClanTableQuery = "CREATE TABLE IF NOT EXISTS player_clans (" +
                     "id SERIAL PRIMARY KEY," +
                     "player_id BIGINT NOT NULL," +
                     "clan_name VARCHAR(255) NOT NULL," +
-                    "FOREIGN KEY (clan_name) REFERENCES clan_zones(clan_name)" +
+                    "FOREIGN KEY (clan_name) REFERENCES clan_zones(clan_name) ON DELETE CASCADE" +
                     ");";
 
-            try (PreparedStatement stmt = conn.prepareStatement(createClanTableQuery)) {
-                stmt.executeUpdate();
-                System.out.println("[ClanTerritory] Таблица clan_zones создана или уже существует.");
-            }
+            try (Statement stmt = conn.createStatement()) {
+                // Выполняем оба запроса в одной транзакции
+                stmt.addBatch(createClanTableQuery);
+                stmt.addBatch(createPlayerClanTableQuery);
+                stmt.executeBatch();
 
-            try (PreparedStatement stmt = conn.prepareStatement(createPlayerClanTableQuery)) {
-                stmt.executeUpdate();
-                System.out.println("[ClanTerritory] Таблица player_clans создана или уже существует.");
+                System.out.println("[ClanTerritory] Таблицы успешно созданы/проверены");
             }
-
-            System.out.println("[ClanTerritory] Все таблицы готовы к использованию!");
 
         } catch (SQLException e) {
-            System.out.println("[ClanTerritory] Ошибка при создании таблиц:");
+            System.err.println("[ClanTerritory] Ошибка при создании таблиц:");
             e.printStackTrace();
         }
     }
