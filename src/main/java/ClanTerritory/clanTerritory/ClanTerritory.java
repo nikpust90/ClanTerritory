@@ -1,7 +1,5 @@
 package ClanTerritory.clanTerritory;
 
-import ClanTerritory.clanTerritory.commands.CreateClanCommand;
-import ClanTerritory.clanTerritory.commands.CreateClanZoneCommand;
 import ClanTerritory.clanTerritory.service.ClanManager;
 import ClanTerritory.clanTerritory.service.ClanZoneManager;
 import org.bukkit.*;
@@ -10,26 +8,37 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public final class ClanTerritory extends JavaPlugin {
 
     private static ClanTerritory instance;
+
+    private Region region;
     private ClanManager clanManager;
     private ClanZoneManager clanZoneManager;
 
+    public static ClanTerritory getInstance() {
+        return instance;
+    }
+
+    public static void setInstance(ClanTerritory instance) {
+        ClanTerritory.instance = instance;
+    }
 
 
     @Override
     public void onEnable() {
         clanManager = new ClanManager();
-        clanZoneManager = new ClanZoneManager();
+        clanZoneManager = new ClanZoneManager(DatabaseManager.getInstance());
 
         // Регистрируем команды
         getCommand("createclan").setExecutor(this);
         getCommand("createclanzone").setExecutor(this);
         getCommand("clan").setExecutor(this);
         getCommand("setclanflag").setExecutor(this);
+        getCommand("teleport").setExecutor(this);
 
         // Слушатель защиты территории
         Bukkit.getPluginManager().registerEvents(new ProtectionListener(), this);
@@ -86,7 +95,15 @@ public final class ClanTerritory extends JavaPlugin {
                     player.sendMessage("§cUsage: /createClanZone <clanName>");
                     return true;
                 }
-                clanZoneManager.createClanZone(player, args[0]);
+                clanZoneManager.createOrUpdateClanZone(player);
+                return true;
+
+            case "teleport":
+                if (args.length < 1) {
+                    player.sendMessage("§cUsage: /teleport");
+                    return true;
+                }
+                clanZoneManager.teleportToClanBase(player);
                 return true;
 
             case "clan":
@@ -106,7 +123,7 @@ public final class ClanTerritory extends JavaPlugin {
                             player.sendMessage("§cClan does not exist.");
                             return true;
                         }
-                        clanManager.addPlayerToClan(uuid, args[1]);
+                        clanManager.addPlayerToClan(player, args[1]);
                         player.sendMessage("§aYou joined clan " + args[1]);
                         return true;
 
@@ -115,52 +132,43 @@ public final class ClanTerritory extends JavaPlugin {
                             player.sendMessage("§cYou are not in a clan.");
                             return true;
                         }
-                        DatabaseManager.removePlayerFromClan(uuid);
+                        clanManager.removePlayerFromClan(player);
                         player.sendMessage("§eYou left the clan.");
                         return true;
 
-                    case "base":
-                        String clan = clanManager.getPlayerClan(uuid);
-                        if (clan == null) {
-                            player.sendMessage("§cYou are not in a clan.");
-                            return true;
-                        }
-                        Region region = DatabaseManager.getClanZone(clan);
-                        if (region == null) {
-                            player.sendMessage("§cYour clan has no base.");
-                            return true;
-                        }
-                        Location tp = new Location(player.getWorld(), region.getCenterX(), region.getCenterY(), region.getCenterZ());
-                        player.teleport(tp);
-                        player.sendMessage("§aTeleported to clan base.");
-                        return true;
+//                    case "base":
+//                        // Получаем клан игрока
+//                        Optional<Clan> optionalClan = clanManager.getPlayerClan(uuid);
+//                        if (optionalClan.isEmpty()) {  // Проверяем, состоит ли игрок в клане
+//                            player.sendMessage("§cYou are not in a clan.");
+//                            return true;
+//                        }
+//
+//                        // Получаем название клана
+//                        String clanName = optionalClan.get().getName();
+//
+//                        // Получаем зону клана
+//                        ClanZone clanZone = clanZoneManager.getClanZone(clanName);
+//                        if (clanZone == null) {
+//                            player.sendMessage("§cYour clan has no base.");
+//                            return true;
+//                        }
+//
+//                        // Получаем координаты базы
+//                        Region region = clanZone.getRegion();
+//                        Location tp = new Location(player.getWorld(), region.getCenterX(), region.getCenterY(), region.getCenterZ());
+//
+//                        // Телепортируем игрока
+//                        player.teleport(tp);
+//                        player.sendMessage("§aTeleported to clan base.");
+//                        return true;
 
                     default:
                         return false;
                 }
         }
 
-
-
         return false;
     }
 
-    // Метод подсветки границы территории
-    public static void highlightBorder(Player player, Region region) {
-        World world = player.getWorld();
-        int centerX = region.getCenterX();
-        int centerY = region.getCenterY();
-        int centerZ = region.getCenterZ();
-        int radius = region.getRadius();
-
-        // Подсветка границы зоны по окружности
-        for (int angle = 0; angle < 360; angle += 10) { // Шаг 10 градусов для частиц
-            double radian = Math.toRadians(angle);
-            double x = centerX + radius * Math.cos(radian);
-            double z = centerZ + radius * Math.sin(radian);
-
-            // Частицы на границе зоны
-            world.spawnParticle(Particle.REDSTONE, x, centerY, z, 1, new Particle.DustOptions(Color.RED, 1)); // Можно выбрать другой цвет или тип частиц
-        }
-    }
 }
