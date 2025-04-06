@@ -91,11 +91,6 @@ public class DatabaseManager {
                         ")"
         };
 
-        String[] indexQueries = {
-                "CREATE INDEX IF NOT EXISTS idx_clan_members_player ON clan_members(player_uuid)",
-                "CREATE INDEX IF NOT EXISTS idx_clan_zones_clan ON clan_zones(clan_id)"
-        };
-
         try (Connection conn = getConnection()) {
             System.out.println("Создание таблиц...");
 
@@ -115,27 +110,14 @@ public class DatabaseManager {
 
             conn.commit(); // фиксируем структуру таблиц
 
-            System.out.println("Создание индексов...");
-
-            for (String query : indexQueries) {
-                try (Statement stmt = conn.createStatement()) {
-                    System.out.println("Выполняется: " + query);
-                    stmt.executeUpdate(query);
-                    System.out.println("✅ Успешно");
-                } catch (SQLException e) {
-                    System.err.println("❌ Ошибка при выполнении запроса индекса:");
-                    System.err.println(query);
-                    e.printStackTrace();
-                }
-            }
-
-            System.out.println("✅ Все таблицы и индексы успешно созданы");
+            System.out.println("✅ Все таблицы успешно созданы");
 
         } catch (SQLException e) {
-            System.err.println("❌ Ошибка при создании таблиц или индексов");
+            System.err.println("❌ Ошибка при создании таблиц");
             e.printStackTrace();
         }
     }
+
 
 
 
