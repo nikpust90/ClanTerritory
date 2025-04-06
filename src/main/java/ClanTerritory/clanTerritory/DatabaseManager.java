@@ -99,28 +99,41 @@ public class DatabaseManager {
 
             conn.setAutoCommit(false);
 
-            // Сначала создаем таблицы
+            System.out.println("[ClanTerritory] Создание таблиц...");
             for (String query : tableQueries) {
-                stmt.addBatch(query);
+                try {
+                    System.out.println("[ClanTerritory] Выполняется: " + query);
+                    stmt.executeUpdate(query);
+                    System.out.println("[ClanTerritory] ✅ Успешно");
+                } catch (SQLException e) {
+                    System.err.println("[ClanTerritory] ❌ Ошибка при выполнении запроса таблицы:");
+                    System.err.println(query);
+                    e.printStackTrace();
+                }
             }
-            stmt.executeBatch();
-            conn.commit();
 
-            // Затем создаем индексы
-            conn.setAutoCommit(false);
+            System.out.println("[ClanTerritory] Создание индексов...");
             for (String query : indexQueries) {
-                stmt.addBatch(query);
+                try {
+                    System.out.println("[ClanTerritory] Выполняется: " + query);
+                    stmt.executeUpdate(query);
+                    System.out.println("[ClanTerritory] ✅ Успешно");
+                } catch (SQLException e) {
+                    System.err.println("[ClanTerritory] ❌ Ошибка при выполнении запроса индекса:");
+                    System.err.println(query);
+                    e.printStackTrace();
+                }
             }
-            stmt.executeBatch();
-            conn.commit();
 
-            System.out.println("[ClanTerritory] Таблицы и индексы успешно созданы");
+            conn.commit();
+            System.out.println("[ClanTerritory] ✅ Все таблицы и индексы успешно созданы");
 
         } catch (SQLException e) {
-            System.err.println("[ClanTerritory] Ошибка при создании таблиц или индексов:");
+            System.err.println("[ClanTerritory] ❌ Общая ошибка при создании таблиц:");
             e.printStackTrace();
         }
     }
+
 
     // Сохранение клана без зоны
     public static boolean saveClan(Clan clan) {
