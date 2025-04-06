@@ -3,6 +3,7 @@ package ClanTerritory.clanTerritory;
 
 
 import io.github.cdimascio.dotenv.Dotenv;
+import org.bukkit.Bukkit;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -63,15 +64,14 @@ public class DatabaseManager {
     }
 
     // Создание таблиц с правильными ограничениями
-    public static void createTables() {
-        System.out.println("[ClanTerritory] Создание таблиц...");
-
+    public void createTables() {
         String[] tableQueries = {
                 "CREATE TABLE IF NOT EXISTS clans (" +
                         "id SERIAL PRIMARY KEY," +
                         "name VARCHAR(255) NOT NULL UNIQUE," +
                         "owner_uuid UUID NOT NULL," +
-                        "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)",
+                        "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+                        ")",
 
                 "CREATE TABLE IF NOT EXISTS clan_zones (" +
                         "id SERIAL PRIMARY KEY," +
@@ -80,13 +80,15 @@ public class DatabaseManager {
                         "center_y INTEGER NOT NULL," +
                         "center_z INTEGER NOT NULL," +
                         "radius INTEGER NOT NULL," +
-                        "world VARCHAR(255) NOT NULL)",
+                        "world VARCHAR(255) NOT NULL" +
+                        ")",
 
                 "CREATE TABLE IF NOT EXISTS clan_members (" +
                         "id SERIAL PRIMARY KEY," +
                         "clan_id INTEGER NOT NULL REFERENCES clans(id) ON DELETE CASCADE," +
                         "player_uuid UUID NOT NULL UNIQUE," +
-                        "joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"
+                        "joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+                        ")"
         };
 
         String[] indexQueries = {
@@ -94,45 +96,48 @@ public class DatabaseManager {
                 "CREATE INDEX IF NOT EXISTS idx_clan_zones_clan ON clan_zones(clan_id)"
         };
 
-        try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement()) {
+        try (Connection conn = getConnection()) {
+            System.out.println("Создание таблиц...");
 
-            conn.setAutoCommit(false);
+            conn.setAutoCommit(false); // включаем ручной коммит
 
-            System.out.println("[ClanTerritory] Создание таблиц...");
             for (String query : tableQueries) {
-                try {
-                    System.out.println("[ClanTerritory] Выполняется: " + query);
+                try (Statement stmt = conn.createStatement()) {
+                    System.out.println("Выполняется: " + query);
                     stmt.executeUpdate(query);
-                    System.out.println("[ClanTerritory] ✅ Успешно");
+                    System.out.println("✅ Успешно");
                 } catch (SQLException e) {
-                    System.err.println("[ClanTerritory] ❌ Ошибка при выполнении запроса таблицы:");
+                    System.err.println("❌ Ошибка при выполнении запроса таблицы:");
                     System.err.println(query);
                     e.printStackTrace();
                 }
             }
 
-            System.out.println("[ClanTerritory] Создание индексов...");
+            conn.commit(); // фиксируем структуру таблиц
+
+            System.out.println("Создание индексов...");
+
             for (String query : indexQueries) {
-                try {
-                    System.out.println("[ClanTerritory] Выполняется: " + query);
+                try (Statement stmt = conn.createStatement()) {
+                    System.out.println("Выполняется: " + query);
                     stmt.executeUpdate(query);
-                    System.out.println("[ClanTerritory] ✅ Успешно");
+                    System.out.println("✅ Успешно");
                 } catch (SQLException e) {
-                    System.err.println("[ClanTerritory] ❌ Ошибка при выполнении запроса индекса:");
+                    System.err.println("❌ Ошибка при выполнении запроса индекса:");
                     System.err.println(query);
                     e.printStackTrace();
                 }
             }
 
-            conn.commit();
-            System.out.println("[ClanTerritory] ✅ Все таблицы и индексы успешно созданы");
+            System.out.println("✅ Все таблицы и индексы успешно созданы");
 
         } catch (SQLException e) {
-            System.err.println("[ClanTerritory] ❌ Общая ошибка при создании таблиц:");
+            System.err.println("❌ Ошибка при создании таблиц или индексов");
             e.printStackTrace();
         }
     }
+
+
 
 
     // Сохранение клана без зоны
