@@ -22,7 +22,7 @@ commands:
 
   clan:
     description: Управление кланом (join, leave, base)
-    usage: /clan <join|leave|base> [название]
+    usage: /clan <join|leave> [название]
 
 permissions:
   clanterritory.use:
