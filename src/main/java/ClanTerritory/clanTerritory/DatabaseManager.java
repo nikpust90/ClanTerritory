@@ -64,7 +64,7 @@ public class DatabaseManager {
     }
 
     // Создание таблиц с правильными ограничениями
-    public void createTables() {
+    public static void createTables() {
         String[] tableQueries = {
                 "CREATE TABLE IF NOT EXISTS clans (" +
                         "id SERIAL PRIMARY KEY," +
