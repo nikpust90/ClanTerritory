@@ -66,7 +66,7 @@ public class DatabaseManager {
     public static void createTables() {
         System.out.println("[ClanTerritory] Создание таблиц...");
 
-        String[] queries = {
+        String[] tableQueries = {
                 "CREATE TABLE IF NOT EXISTS clans (" +
                         "id SERIAL PRIMARY KEY," +
                         "name VARCHAR(255) NOT NULL UNIQUE," +
@@ -86,8 +86,10 @@ public class DatabaseManager {
                         "id SERIAL PRIMARY KEY," +
                         "clan_id INTEGER NOT NULL REFERENCES clans(id) ON DELETE CASCADE," +
                         "player_uuid UUID NOT NULL UNIQUE," +
-                        "joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)",
+                        "joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"
+        };
 
+        String[] indexQueries = {
                 "CREATE INDEX IF NOT EXISTS idx_clan_members_player ON clan_members(player_uuid)",
                 "CREATE INDEX IF NOT EXISTS idx_clan_zones_clan ON clan_zones(clan_id)"
         };
@@ -95,17 +97,27 @@ public class DatabaseManager {
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement()) {
 
-            // Выполняем все запросы в одной транзакции
             conn.setAutoCommit(false);
-            for (String query : queries) {
+
+            // Сначала создаем таблицы
+            for (String query : tableQueries) {
                 stmt.addBatch(query);
             }
             stmt.executeBatch();
             conn.commit();
 
-            System.out.println("[ClanTerritory] Таблицы успешно созданы");
+            // Затем создаем индексы
+            conn.setAutoCommit(false);
+            for (String query : indexQueries) {
+                stmt.addBatch(query);
+            }
+            stmt.executeBatch();
+            conn.commit();
+
+            System.out.println("[ClanTerritory] Таблицы и индексы успешно созданы");
+
         } catch (SQLException e) {
-            System.err.println("[ClanTerritory] Ошибка при создании таблиц:");
+            System.err.println("[ClanTerritory] Ошибка при создании таблиц или индексов:");
             e.printStackTrace();
         }
     }
