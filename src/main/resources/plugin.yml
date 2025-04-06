@@ -8,6 +8,10 @@ commands:
     description: Установить флаг клана
     usage: /setclanflag
 
+  teleport:
+    description: Телепорт на базу
+    usage: /teleport
+
   createclan:
     description: Создать клан
     usage: /createclan <имя>
