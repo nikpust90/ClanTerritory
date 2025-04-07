@@ -92,7 +92,7 @@ public final class ClanTerritory extends JavaPlugin {
 
             case "createclanzone":
                 if (args.length < 1) {
-                    player.sendMessage("§cUsage: /createClanZone <clanName>");
+                    player.sendMessage("§cUsage: /createClanZone");
                     return true;
                 }
                 clanZoneManager.createOrUpdateClanZone(player);
