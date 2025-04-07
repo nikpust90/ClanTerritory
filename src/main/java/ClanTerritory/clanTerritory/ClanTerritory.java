@@ -69,8 +69,8 @@ public final class ClanTerritory extends JavaPlugin {
 
                 String clanName = args[0];
 
-                // Проверка: уже в клане?
-                if (clanManager.getPlayerClan(uuid) != null) {
+                // Проверка: игрок в клане?
+                if (clanManager.getPlayerClan(uuid).isPresent()) {
                     player.sendMessage("§cYou are already in a clan.");
                     return true;
                 }
