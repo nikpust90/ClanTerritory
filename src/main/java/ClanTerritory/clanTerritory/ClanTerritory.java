@@ -76,7 +76,7 @@ public final class ClanTerritory extends JavaPlugin {
                 }
 
                 // Проверка: имя занято?
-                if (DatabaseManager.getClanZone(clanName) != null) {
+                if (DatabaseManager.getClanZone(clanName).isPresent()) {
                     player.sendMessage("§cClan with that name already exists.");
                     return true;
                 }
@@ -115,7 +115,7 @@ public final class ClanTerritory extends JavaPlugin {
                             player.sendMessage("§cUsage: /clan join <name>");
                             return true;
                         }
-                        if (clanManager.getPlayerClan(uuid) != null) {
+                        if (clanManager.getPlayerClan(uuid).isPresent()) {
                             player.sendMessage("§cYou are already in a clan.");
                             return true;
                         }
@@ -128,7 +128,7 @@ public final class ClanTerritory extends JavaPlugin {
                         return true;
 
                     case "leave":
-                        if (clanManager.getPlayerClan(uuid) == null) {
+                        if (clanManager.getPlayerClan(uuid).isEmpty()) {
                             player.sendMessage("§cYou are not in a clan.");
                             return true;
                         }
