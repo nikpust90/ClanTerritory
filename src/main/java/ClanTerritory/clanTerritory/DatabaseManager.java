@@ -238,7 +238,8 @@ public class DatabaseManager {
 
     // Метод для получения клана игрока по UUID
     public static Optional<Clan> getPlayerClan(UUID playerUuid) {
-        // SQL-запрос для поиска клана по UUID игрока
+        System.out.println("[DEBUG] Поиск клана для UUID: " + playerUuid); // Логируем UUID
+
         String query = "SELECT c.id, c.name, c.owner_uuid FROM clans c " +
                 "JOIN clan_members cm ON c.id = cm.clan_id " +
                 "WHERE cm.player_uuid = ?";
@@ -246,30 +247,26 @@ public class DatabaseManager {
         try (Connection connection = getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
 
-            // Устанавливаем параметр для запроса (UUID игрока)
             statement.setString(1, playerUuid.toString());
 
-            // Выполняем запрос и получаем результат
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    // Извлекаем данные о клане
                     int clanId = resultSet.getInt("id");
                     String clanName = resultSet.getString("name");
                     UUID ownerUuid = UUID.fromString(resultSet.getString("owner_uuid"));
 
-                    // Создаем объект Clan с полученными данными
-                    Clan clan = new Clan(clanId, clanName, ownerUuid);
-
-                    // Возвращаем клан в Optional
-                    return Optional.of(clan);
+                    System.out.println("[DEBUG] Найден клан: " + clanName + ", ID: " + clanId); // Логируем найденный клан
+                    return Optional.of(new Clan(clanId, clanName, ownerUuid));
+                } else {
+                    System.out.println("[DEBUG] Клан не найден в БД для UUID: " + playerUuid); // Логируем отсутствие клана
                 }
             }
 
         } catch (SQLException e) {
+            System.err.println("[ERROR] Ошибка при запросе клана для UUID " + playerUuid);
             e.printStackTrace();
         }
 
-        // Если клан не найден, возвращаем Optional.empty()
         return Optional.empty();
     }
 
