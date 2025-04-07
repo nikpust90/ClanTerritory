@@ -238,7 +238,7 @@ public class DatabaseManager {
 
     // Метод для получения клана игрока по UUID
     public static Optional<Clan> getPlayerClan(UUID playerUuid) {
-        System.out.println("[DEBUG] Поиск клана для UUID: " + playerUuid); // Логируем UUID
+        System.out.println("[DEBUG] Поиск клана для UUID: " + playerUuid);
 
         String query = "SELECT c.id, c.name, c.owner_uuid FROM clans c " +
                 "JOIN clan_members cm ON c.id = cm.clan_id " +
@@ -247,18 +247,21 @@ public class DatabaseManager {
         try (Connection connection = getConnection();
              PreparedStatement statement = connection.prepareStatement(query)) {
 
-            statement.setString(1, playerUuid.toString());
+            // Используем setObject для правильной передачи UUID
+            statement.setObject(1, playerUuid);
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
                     int clanId = resultSet.getInt("id");
                     String clanName = resultSet.getString("name");
-                    UUID ownerUuid = UUID.fromString(resultSet.getString("owner_uuid"));
 
-                    System.out.println("[DEBUG] Найден клан: " + clanName + ", ID: " + clanId); // Логируем найденный клан
+                    // Получаем UUID из результата
+                    UUID ownerUuid = (UUID) resultSet.getObject("owner_uuid");
+
+                    System.out.println("[DEBUG] Найден клан: " + clanName + ", ID: " + clanId);
                     return Optional.of(new Clan(clanId, clanName, ownerUuid));
                 } else {
-                    System.out.println("[DEBUG] Клан не найден в БД для UUID: " + playerUuid); // Логируем отсутствие клана
+                    System.out.println("[DEBUG] Клан не найден в БД для UUID: " + playerUuid);
                 }
             }
 
